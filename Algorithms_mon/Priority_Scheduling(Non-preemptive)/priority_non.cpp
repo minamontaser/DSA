@@ -1,4 +1,4 @@
-//!Priority Scheduling Algorithm (Preemptive), O(n^2), O(n)
+//!Non-preemptive Priority Scheduling Algorithm
 #include <iostream>
 #include <string>
 #include <climits>
@@ -18,7 +18,8 @@ inline void set_fast_io() {
 
 struct task {
 	string name;
-	ll arrival, burst, start, wait, finish, tat, remain, priority;
+	ll arrival, burst, start, wait, finish, tat, priority;
+	bool done = false;
 };
 
 signed main() {
@@ -27,16 +28,13 @@ signed main() {
 
 	ll n; cin >> n;
 	vector<task> tasks(n);
-	for (task& it : tasks) {
-		cin >> it.name >> it.arrival >> it.burst >> it.priority;
-		it.remain = it.burst;
-	}
+	for (task& it : tasks) cin >> it.name >> it.arrival >> it.burst >> it.priority;
 	ld total_wait = 0, total_tat = 0;
 	ll completed = 0, time = 0;
 	while (completed < n) {
-		ll indx = -1, max_pr = INT_MAX, min_br = INT_MAX;
+		ll indx = -1, max_pr = LLONG_MAX, min_br = LLONG_MAX;
 		for (size_t i = 0; i < n; i++) {
-			if (tasks[i].arrival <= time && tasks[i].remain) {
+			if (tasks[i].arrival <= time && !tasks[i].done) {
 				if (tasks[i].priority < max_pr ||
 					(tasks[i].priority == max_pr && tasks[i].burst < min_br)) {
 					max_pr = tasks[i].priority, min_br = tasks[i].burst;
@@ -44,18 +42,23 @@ signed main() {
 				}
 			}
 		}
-		time++;
-		if (indx == -1) continue;
-		if (tasks[indx].remain == tasks[indx].burst) tasks[indx].start = time - 1;
-		tasks[indx].remain--;
-		if (tasks[indx].remain == 0) {
-			task& it = tasks[indx];
-			it.finish = time;
-			it.tat = it.finish - it.arrival;
-			it.wait = it.tat - it.burst;
-			total_wait += it.wait, total_tat += it.tat;
-			completed++;
+		if (indx == -1) {
+			ll next_arrival = LLONG_MAX;
+			for (task& it : tasks)
+				if (!it.done)
+					next_arrival = min(next_arrival, it.arrival);
+			time = next_arrival;
+			continue;
 		}
+		task& it = tasks[indx];
+		it.done = true;
+		it.start = time;
+		time += it.burst;
+		it.finish = time;
+		it.tat = it.finish - it.arrival;
+		it.wait = it.tat - it.burst;
+		total_wait += it.wait, total_tat += it.tat;
+		completed++;
 	}
 
 	cout << "\nProcess\tAT\tBT\tPR\tCT\tTAT\tWT\n";

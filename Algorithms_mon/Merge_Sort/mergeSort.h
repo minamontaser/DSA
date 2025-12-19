@@ -21,3 +21,19 @@ void mergeSort(vector<ll>& vec) { // n log n
 	mergeSort(vec_left), mergeSort(vec_right); // log n
 	merge(vec_left, vec_right, vec); // n
 }
+
+signed main() {
+
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+
+	ll n; cin >> n;
+	vector<ll> vec(n);
+	for (ll& x : vec) cin >> x;
+	mergeSort(vec);
+	for (ll& x : vec) cout << x << " ";
+	cout << "\n";
+
+	return 0;
+}

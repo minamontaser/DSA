@@ -1,4 +1,5 @@
 //!SRTF (Shortest Remainig Time First)
+/*
 #include <iostream>
 #include <string>
 #include <vector>
@@ -10,7 +11,7 @@ using namespace std;
 
 struct Task {
 	string name;
-	ll arrival, burst, complete, wait, remain, tat;
+	ll arrival, burst, complete, start, wait, remain, tat;
 };
 
 signed main() {
@@ -45,6 +46,7 @@ signed main() {
 
 		time++;
 		if (indx == -1) continue;
+		if (tasks[indx].remain == tasks[indx].burst) tasks[indx].start = time - 1;
 		tasks[indx].remain--;
 
 		if (tasks[indx].remain == 0) {
@@ -72,3 +74,4 @@ signed main() {
 
 	return 0;
 }
+*/

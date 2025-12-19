@@ -23,14 +23,18 @@ signed main() {
 	cout << "No. processes: "; cin >> n;
 	cout << "Time Quantum(TQ): "; cin >> tq;
 	vector<task> tasks(n);
+
 	for (size_t i = 0; i < n; i++) {
 		cin >> tasks[i].name >> tasks[i].arrival >> tasks[i].burst;
 		tasks[i].remain = tasks[i].burst;
 	}
+
 	ld total_wait = 0, total_tat = 0;
 	ll completed = 0, time = 0;
+
 	while (completed < n) {
 		bool valid = false;
+
 		for (size_t i = 0; i < n; i++) {
 			if (tasks[i].arrival <= time && tasks[i].remain > 0) {
 				valid = true;
@@ -50,8 +54,10 @@ signed main() {
 				}
 			}
 		}
+
 		if (!valid) time++;
 	}
+
 	cout << "\nProcess\tAT\tBT\tST\tCT\tTAT\tWT\n";
 	for (auto& t : tasks) {
 		cout << t.name << "\t" << t.arrival << "\t" << t.burst << "\t" << t.start

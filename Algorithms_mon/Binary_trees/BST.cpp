@@ -5,6 +5,15 @@
 
 using namespace std;
 
+#define ll long long
+#define ld long double
+
+inline void set_fast_io() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+}
+
 template<class T> struct Node {
 	T value;
 	Node<T>* right, * left;
@@ -36,6 +45,13 @@ private:
 		return node;
 	}
 
+	Node<T>* insertNode2(Node<T>* node, T data) {//! Alternative version of insertNode
+		if (!node) return new Node<T>(data);
+		if (node->value == data) throw runtime_error("Duplicated value!");
+		(data < node->value ? node->left : node->right) = insertNode2(data < node->value ? node->left : node->right, data);
+		return node;
+	}
+
 	Node<T>* searchNode(Node<T>* node, T data) {
 		if (node == nullptr) {
 			return nullptr;
@@ -43,13 +59,7 @@ private:
 		if (node->value == data) {
 			return node;
 		}
-		else if (node->value < data) {
-			return searchNode(node->right, data);
-		}
-		else if (node->value > data) {
-			return searchNode(node->left, data);
-		}
-		return nullptr;
+		return (node->value > data ? searchNode(node->left, data) : searchNode(node->right, data));
 	}
 
 	Node<T>* deleteNode(Node<T>* node, T data) {
@@ -89,7 +99,7 @@ private:
 
 	Node<T>* findParent(Node<T>* node, T data) {
 		if (node == nullptr || node->value == data) return nullptr;
-		if ((node->left && node->left->value == data) || 
+		if ((node->left && node->left->value == data) ||
 			(node->right && node->right->value == data)) {
 			return node;
 		}
@@ -103,25 +113,25 @@ private:
 	}
 
 	Node<T>* min_value(Node<T>* node) {
-		if (node == nullptr) return nullptr;
-		if (node->left == nullptr) return node;
-		return min_value(node->left);
+		if (!node) {
+			return nullptr;
+		}
+		return (node->left ? min_value(node->left) : node);
 	}
 
 	Node<T>* max_value(Node<T>* node) {
-		if (node == nullptr) return nullptr;
-		if (node->right == nullptr) return node;
-		return max_value(node->right);
+		if (!node) {
+			return nullptr;
+		}
+		return (node->right ? max_value(node->right) : node);
 	}
 
 	int countNodes(Node<T>* node) {
-		if (node == nullptr) return 0;
-		return 1 + countNodes(node->left) + countNodes(node->right);
+		return (node == nullptr ? 0 : 1 + countNodes(node->left) + countNodes(node->right));
 	}
 
-	int sumNodes(Node<T>* node) {
-		if (node == nullptr) return 0;
-		return node->value + sumNodes(node->right) + sumNodes(node->left);
+	auto sumNodes(Node<T>* node) -> T {
+		return (node == nullptr ? T{} : node->value + sumNodes(node->left) + sumNodes(node->right));
 	}
 
 	int height(Node<T>* node) {
@@ -140,6 +150,28 @@ private:
 			if (temp->left) que.push(temp->left);
 			if (temp->right) que.push(temp->right);
 		}
+	}
+
+	Node<T>* deleteMax(Node<T>* node) {
+		if (node == nullptr) return nullptr;
+		if (node->right == nullptr) {
+			Node<T>* temp = node->left;
+			delete node;
+			return temp;
+		}
+		node->right = deleteMax(node->right);
+		return node;
+	}
+
+	Node<T>* deleteMin(Node<T>* node) {
+		if (node == nullptr) return nullptr;
+		if (node->left == nullptr) {
+			Node<T>* temp = node->right;
+			delete node;
+			return temp;
+		}
+		node->left = deleteMin(node->left);
+		return node;
 	}
 
 	void preorder(Node<T>* node) {
@@ -177,11 +209,26 @@ public:
 		size++;
 	}
 
+	void insertNode2(T data) {
+		root = insertNode2(root, data);
+		size++;
+	}
+
 	void deleteNode(T data) {
 		if (contains(data)) {
 			root = deleteNode(root, data);
 			size--;
 		}
+	}
+
+	void deleteMax() {
+		root = deleteMax(root);
+		size--;
+	}
+
+	void deleteMin() {
+		root = deleteMin(root);
+		size--;
 	}
 
 	bool contains(T data) {
@@ -251,69 +298,67 @@ public:
 	}
 };
 
-int main() {
+signed main() {
+
+	set_fast_io();
+
 	BST<int> tree;
 
-	cout << "===== INSERTING NODES =====" << endl;
-	int values[] = { 50, 30, 70, 20, 40, 60, 80 };
-	for (int v : values) {
-		cout << "Inserting: " << v << endl;
-		tree.insertNode(v);
-	}
-	cout << endl;
+	cout << "--- Testing insertNode and BFS ---\n";
+	ll vals[]{ 50, 30, 70, 20, 40, 60, 80 };
+	for (ll& v : vals) tree.insertNode(v);
+	tree.BFS(); // Should print 50 30 70 20 40 60 80
 
-	cout << "===== BFS TRAVERSAL =====" << endl;
+	cout << "\n--- Testing insertNode2 ---\n";
+	tree.insertNode2(10);
+	tree.insertNode2(5);
+	tree.insertNode2(15);
+	tree.BFS(); // Should print 10 5 15
+
+	cout << "\n--- Testing searchNode ---\n";
+	cout << "Searching 40: " << (tree.contains(40) ? "Found" : "Not Found") << endl;
+	cout << "Searching 100: " << (tree.contains(100) ? "Found" : "Not Found") << endl;
+
+	cout << "\n--- Testing getMin and getMax ---\n";
+	cout << "Min: " << tree.getMin() << endl; // 20
+	cout << "Max: " << tree.getMax() << endl; // 80
+
+	cout << "\n--- Testing sumNodes ---\n";
+	cout << "Sum of nodes: " << tree.sumNodes() << endl;
+
+	cout << "\n--- Testing countNodes ---\n";
+	cout << "Count of nodes: " << tree.countNodes() << endl;
+
+	cout << "\n--- Testing getParent ---\n";
+	cout << "Parent of 20: " << tree.getParent(20) << endl;
+	cout << "Parent of 70: " << tree.getParent(70) << endl;
+
+	cout << "\n--- Testing deleteNode ---\n";
+	tree.deleteNode(20); // Leaf
+	tree.deleteNode(30); // Node with one child
+	tree.deleteNode(50); // Node with two children (root)
 	tree.BFS();
 
-	cout << "===== INORDER (sorted) =====" << endl;
-	tree.printInOrder();
+	cout << "\n--- Testing deleteMax and deleteMin ---\n";
+	tree.deleteMax();
+	tree.deleteMin();
+	tree.BFS();
 
-	cout << "===== PREORDER =====" << endl;
-	tree.printPreOrder();
+	cout << "\n--- Testing traversals ---\n";
+	cout << "In-order: "; tree.printInOrder();
+	cout << "Pre-order: "; tree.printPreOrder();
+	cout << "Post-order: "; tree.printPostOrder();
 
-	cout << "===== POSTORDER =====" << endl;
-	tree.printPostOrder();
-
-	cout << "===== TREE PROPERTIES =====" << endl;
+	cout << "\n--- Testing getSize and getHeight ---\n";
 	cout << "Size: " << tree.getSize() << endl;
 	cout << "Height: " << tree.getHeight() << endl;
-	cout << "Min value: " << tree.getMin() << endl;
-	cout << "Max value: " << tree.getMax() << endl;
-	cout << "Count nodes: " << tree.countNodes() << endl;
-	cout << "Sum of nodes: " << tree.sumNodes() << endl;
-	cout << endl;
 
-	cout << "===== SEARCH TESTS =====" << endl;
-	cout << "Contains 40? " << (tree.contains(40) ? "Yes" : "No") << endl;
-	cout << "Contains 99? " << (tree.contains(99) ? "Yes" : "No") << endl;
-	cout << endl;
-
-	cout << "===== PARENT TESTS =====" << endl;
-	try {
-		cout << "Parent of 40: " << tree.getParent(40) << endl;
-		cout << "Parent of 20: " << tree.getParent(20) << endl;
-		cout << "Parent of 50 (root): " << tree.getParent(50) << endl;
-	}
-	catch (exception& e) {
-		cout << "Error: " << e.what() << endl;
-	}
-	cout << endl;
-
-	cout << "===== DELETE TESTS =====" << endl;
-	cout << "Deleting 20 (leaf)" << endl;
-	tree.deleteNode(20);
-	tree.printInOrder();
-
-	cout << "Deleting 30 (one child)" << endl;
-	tree.deleteNode(30);
-	tree.printInOrder();
-
-	cout << "Deleting 50 (root, two children)" << endl;
-	tree.deleteNode(50);
-	tree.printInOrder();
-
-	cout << "===== FINAL TREE (BFS) =====" << endl;
-	tree.BFS();
+	cout << "\n--- Edge cases ---\n";
+	BST<int> emptyTree;
+	try { emptyTree.getMin(); }
+	catch (runtime_error& e) { cout << e.what() << endl; }
+	try { emptyTree.getParent(1); }
+	catch (runtime_error& e) { cout << e.what() << endl; }
 
 	return 0;
 }

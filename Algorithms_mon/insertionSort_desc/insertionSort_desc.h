@@ -12,7 +12,7 @@ void insertionSort(vector<ll>& vec) {
 	for (ll i = 1; i < vec.size(); i++) {
 		ll j = i - 1;
 		temp = vec[i];
-		while (j >= 0 && vec[j] < temp) {
+		while (j >= 0 && vec[j] > temp) {
 			vec[j + 1] = vec[j];
 			j--;
 		}

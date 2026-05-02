@@ -6,10 +6,16 @@ using namespace std;
 
 #define ll long long
 
+inline void set_fast_io() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(nullptr);
+	cout.tie(nullptr);
+}
+
 void merge(vector<ll>& vec_left, vector<ll>& vec_right, vector<ll>& vec) { // n
 	ll l = 0, r = 0, i = 0; // 1
 	while (l < vec_left.size() && r < vec_right.size())
-		vec[i++] = (vec_left[l] >= vec_right[r] ? vec_right[r++] : vec_left[l++]); // n / 2
+		vec[i++] = (vec_left[l] > vec_right[r] ? vec_right[r++] : vec_left[l++]); // n / 2
 	while (l < vec_left.size()) vec[i++] = vec_left[l++]; // n / 2
 	while (r < vec_right.size()) vec[i++] = vec_right[r++]; // n / 2
 }
@@ -23,10 +29,6 @@ void mergeSort(vector<ll>& vec) { // n log n
 }
 
 signed main() {
-
-	ios_base::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
 
 	ll n; cin >> n;
 	vector<ll> vec(n);
